@@ -2,6 +2,12 @@
 
 Welcome to the 8-Bit Retro Browser! This application is a fun and nostalgic web browser that incorporates a retro 8-bit aesthetic. Built using PyQt5, it allows users to navigate the web while enjoying a unique visual style reminiscent of classic video games.
 
+![image](https://github.com/user-attachments/assets/1e8b33d6-a11a-4b87-b0db-ccc4579e476b)
+![image](https://github.com/user-attachments/assets/8079fb63-5b88-4e20-a35e-7910ac68f415)
+![image](https://github.com/user-attachments/assets/c3187c30-7659-4ae2-a8cc-89e3980eaf29)
+
+
+
 ## Table of Contents
 
 - [Features](#features)
