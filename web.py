@@ -186,14 +186,12 @@ class Browser(QMainWindow):
     def add_bookmark(self):
         current_url = self.browser.url().toString()
 
-        # Prompt user to enter a name for the bookmark, with no close button
+        # Prompt user for bookmark name
         bookmark_name, ok = QInputDialog.getText(
             self,
             "Bookmark Name",
             "Enter a name for the bookmark:",
-            flags=Qt.Dialog
-            | Qt.WindowTitleHint
-            | Qt.CustomizeWindowHint,  # Remove close button
+            flags=Qt.Dialog | Qt.WindowTitleHint | Qt.CustomizeWindowHint,
         )
 
         if ok and bookmark_name:
@@ -201,27 +199,35 @@ class Browser(QMainWindow):
             if not any(bm["url"] == current_url for bm in self.bookmarks):
                 self.bookmarks.append({"name": bookmark_name, "url": current_url})
 
-                # Create a new button for the bookmark with the given name
+                # Create a new button for the bookmark with increased size
                 bookmark_btn = QPushButton(bookmark_name)
                 bookmark_btn.setStyleSheet(
                     """
-                    font-size: 10px;
+                    font-size: 12px;  /* Increased font size */
                     color: #000;
-                    background-color: #fff;
+                    background-color: white;
                     border: 2px solid #0f0;
-                    padding: 10px;
-                """
+                    padding: 5px;     /* Padding for larger button */
+                    min-width: 120px;  /* Minimum width for better visibility */
+                    max-width: 200px;  /* Maximum width */
+                    min-height: 20px;  /* Minimum height for better visibility */
+                    max-height: 30px;  /* Maximum height */
+                    """
                 )
+
+                # Connect button click to navigate to URL
                 bookmark_btn.clicked.connect(
                     lambda url=current_url: self.browser.setUrl(QUrl(url))
                 )
+
+                # Add button to the layout
                 self.bookmark_bar_layout.addWidget(bookmark_btn)
 
-                # Dialog with no close button
+                # Show confirmation message
                 msg_box = QMessageBox(self)
                 msg_box.setWindowFlags(
                     Qt.Dialog | Qt.WindowTitleHint | Qt.CustomizeWindowHint
-                )  # Remove close button
+                )
                 msg_box.information(
                     self,
                     "Bookmark Added",
@@ -231,7 +237,7 @@ class Browser(QMainWindow):
                 msg_box = QMessageBox(self)
                 msg_box.setWindowFlags(
                     Qt.Dialog | Qt.WindowTitleHint | Qt.CustomizeWindowHint
-                )  # Remove close button
+                )
                 msg_box.warning(
                     self, "Bookmark Exists", f"'{current_url}' is already in bookmarks."
                 )
