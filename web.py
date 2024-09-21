@@ -51,7 +51,7 @@ class Browser(QMainWindow):
 
         # Title label
         title_label = QLabel("OR-BIT")
-        title_label.setStyleSheet("color: green;")
+        title_label.setStyleSheet("color: #0f0;")
         title_layout.addWidget(title_label)
 
         title_layout.addStretch()
@@ -151,6 +151,13 @@ class Browser(QMainWindow):
         logo_label.setPixmap(
             QIcon(os.path.join(self.script_dir, "images", "logo.png")).pixmap(60, 60)
         )
+        self.bookmark_bar_layout = QHBoxLayout()
+        self.bookmark_bar_layout.setContentsMargins(5, 0, 5, 0)
+        self.bookmark_bar_layout.setSpacing(5)
+
+        bookmark_bar_widget = QWidget()
+        bookmark_bar_widget.setLayout(self.bookmark_bar_layout)
+        bookmark_bar_widget.setFixedHeight(30)  # Very thin bookmark bar
 
         nav_layout = QHBoxLayout()
         nav_layout.setContentsMargins(5, 5, 5, 5)
@@ -173,6 +180,7 @@ class Browser(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(self.title_bar)
         main_layout.addWidget(nav_widget)
+        main_layout.addWidget(bookmark_bar_widget)
         main_layout.addWidget(self.tab_widget)
 
         widget = QWidget()
@@ -282,16 +290,31 @@ class Browser(QMainWindow):
         )
 
         if ok and bookmark_name:
+            # Check if the bookmark already exists
             if not any(bm["url"] == current_url for bm in self.bookmarks):
                 self.bookmarks.append({"name": bookmark_name, "url": current_url})
-                QMessageBox.information(
-                    self,
-                    "Bookmark Added",
-                    f'Bookmark "{bookmark_name}" added successfully!',
+
+                # Add a bookmark button to the bookmark bar
+                bookmark_button = QPushButton(bookmark_name)
+                bookmark_button.setFixedHeight(20)  # Reduce bookmark button height
+                bookmark_button.setStyleSheet(
+                    """
+                    QPushButton {
+                        background-color: #fff;
+                        color: #000;
+                        border: 2px solid #0f0;
+                    }
+                    """
                 )
+                bookmark_button.clicked.connect(
+                    lambda: self.browser.setUrl(QUrl(current_url))
+                )
+                self.bookmark_bar_layout.addWidget(bookmark_button)
             else:
                 QMessageBox.warning(
-                    self, "Duplicate Bookmark", "This bookmark already exists!"
+                    self,
+                    "Duplicate Bookmark",
+                    "This bookmark already exists in the bookmark bar.",
                 )
 
     def toggle_dev_tools(self):
