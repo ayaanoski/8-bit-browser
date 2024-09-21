@@ -29,7 +29,7 @@ class Browser(QMainWindow):
         self.setWindowFlags(Qt.FramelessWindowHint)
 
         # Set up the main window properties
-        self.setWindowTitle("8-Bit Retro Browser")
+        self.setWindowTitle("OR-BIT")
         self.setWindowIcon(QIcon(os.path.join(self.script_dir, "images", "logo.png")))
         self.setGeometry(100, 100, 800, 600)
 
@@ -49,7 +49,7 @@ class Browser(QMainWindow):
         title_layout.setContentsMargins(5, 0, 5, 0)
 
         # Title label
-        title_label = QLabel("8-Bit Retro Browser")
+        title_label = QLabel("OR-BIT")
         title_label.setStyleSheet("color: green;")
         title_layout.addWidget(title_label)
 
@@ -58,14 +58,14 @@ class Browser(QMainWindow):
         # Create custom minimize, maximize/restore, and close buttons
         minimize_btn = QPushButton("_")
         maximize_btn = QPushButton("☐")
-        close_btn = QPushButton("X")
+        close_btn = QPushButton("❌")
 
         for btn in [minimize_btn, maximize_btn, close_btn]:
             btn.setFixedSize(30, 30)
             btn.setStyleSheet(
                 """
                 QPushButton {
-                    background-color: black;
+                    background-color: gray;
                     color: green;
                     border: 2px solid #0f0;
                     font-family: "Press Start 2P";
@@ -220,6 +220,9 @@ class Browser(QMainWindow):
             border-radius: 5px;
             padding: 0px;  /* Adjust padding */
         }
+        QPushButton:hover {
+                    background-color: #111;
+                }
 
         QLineEdit {
             background-color: #111;  /* Darker input field background */
