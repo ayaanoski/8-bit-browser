@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QInputDialog,
     QTabWidget,
 )
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import QUrl, QSize, Qt, QPoint
 
@@ -100,9 +100,9 @@ class Browser(QMainWindow):
         self.add_new_tab_button()
 
         # Create developer tools window (QDockWidget)
-        self.dev_tools = QWebEngineView()
+        self.dev_tools_view = QWebEngineView()
         self.dev_dock = QDockWidget("Developer Tools", self)
-        self.dev_dock.setWidget(self.dev_tools)
+        self.dev_dock.setWidget(self.dev_tools_view)
         self.addDockWidget(Qt.BottomDockWidgetArea, self.dev_dock)
         self.dev_dock.hide()
 
@@ -242,6 +242,9 @@ class Browser(QMainWindow):
         browser = QWebEngineView()
         browser.setUrl(qurl)
 
+        # Set up developer tools for the browser
+        browser.page().setDevToolsPage(self.dev_tools_view.page())
+
         # Update the tab label when the URL changes
         browser.titleChanged.connect(
             lambda title: self.tab_widget.setTabText(
@@ -255,100 +258,32 @@ class Browser(QMainWindow):
         index = self.tab_widget.insertTab(self.tab_widget.count() - 1, browser, label)
         self.tab_widget.setCurrentIndex(index)
 
-    def add_new_tab_button(self):
-        self.new_tab_btn = QPushButton("+")
-        self.new_tab_btn.setFixedSize(30, 30)
-        self.new_tab_btn.setStyleSheet("margin-top: 4px;margin-bottom: 8px;")
-        self.new_tab_btn.clicked.connect(lambda: self.add_new_tab())
-        self.tab_widget.setCornerWidget(self.new_tab_btn, Qt.TopLeftCorner)
-
     def close_tab(self, index):
-        if self.tab_widget.count() > 1:
+        if self.tab_widget.count() > 2:
             self.tab_widget.removeTab(index)
+        else:
+            self.close()
 
-    def navigate_to_url(self):
-        url = self.url_bar.text().strip()
-        if not url.startswith("http://") and not url.startswith("https://"):
-            url = "https://www.google.com/search?q=" + url
-
-        self.current_browser().setUrl(QUrl(url))
-
-    def navigate_home(self):
-        self.current_browser().setUrl(QUrl("https://www.google.com"))
-        self.current_browser().loadFinished.connect(
-            lambda success: self.apply_8bit_style(self.current_browser())
+    def apply_8bit_style(self, browser):
+        # Inject 8-bit style CSS
+        browser.page().runJavaScript(
+            """
+            var css = `
+            * {
+                font-family: "Press Start 2P", cursive !important;
+            }
+            `;
+            var style = document.createElement('style');
+            style.innerHTML = css;
+            document.head.appendChild(style);
+            """
         )
-
-    def add_bookmark(self):
-        current_url = self.current_browser().url().toString()
-
-        bookmark_name, ok = QInputDialog.getText(
-            self,
-            "Bookmark Name",
-            "Enter a name for the bookmark:",
-            flags=Qt.Dialog | Qt.WindowTitleHint | Qt.CustomizeWindowHint,
-        )
-
-        if ok and bookmark_name:
-            # Check if the bookmark already exists
-            if not any(bm["url"] == current_url for bm in self.bookmarks):
-                self.bookmarks.append({"name": bookmark_name, "url": current_url})
-
-                # Add a bookmark button to the bookmark bar
-                bookmark_button = QPushButton(bookmark_name)
-                bookmark_button.setFixedHeight(20)  # Reduce bookmark button height
-                bookmark_button.setStyleSheet(
-                    """
-                    QPushButton {
-                        background-color: #fff;
-                        color: #000;
-                        border: 2px solid #0f0;
-                    }
-                    """
-                )
-                bookmark_button.clicked.connect(
-                    lambda: self.browser.setUrl(QUrl(current_url))
-                )
-                self.bookmark_bar_layout.addWidget(bookmark_button)
-            else:
-                QMessageBox.warning(
-                    self,
-                    "Duplicate Bookmark",
-                    "This bookmark already exists in the bookmark bar.",
-                )
 
     def toggle_dev_tools(self):
         if self.dev_dock.isVisible():
             self.dev_dock.hide()
         else:
             self.dev_dock.show()
-            self.dev_tools.setUrl(self.current_browser().url())
-
-    def browser_back(self):
-        self.current_browser().back()
-
-    def browser_forward(self):
-        self.current_browser().forward()
-
-    def browser_refresh(self):
-        self.current_browser().reload()
-
-    def update_url_bar(self):
-        browser = self.current_browser()
-        self.url_bar.setText(browser.url().toString())
-
-    def current_browser(self):
-        return self.tab_widget.currentWidget()
-
-    def mouse_press_event(self, event):
-        if event.button() == Qt.LeftButton:
-            self.old_position = event.globalPos()
-
-    def mouse_move_event(self, event):
-        if self.old_position:
-            delta = QPoint(event.globalPos() - self.old_position)
-            self.move(self.pos() + delta)
-            self.old_position = event.globalPos()
 
     def toggle_maximize(self):
         if self.isMaximized():
@@ -356,40 +291,86 @@ class Browser(QMainWindow):
         else:
             self.showMaximized()
 
-    def apply_8bit_style(self, browser):
-        css = """
-        body, html, * {
-            image-rendering: crisp-edges !important;
-            font-family: "Press Start 2P", cursive !important;
-            filter: contrast(110%) brightness(98%) !important;
-            letter-spacing: 1px;
-        }
+    def navigate_to_url(self):
+        url = self.url_bar.text()
+        if not url.startswith("http"):
+            url = "http://" + url
+        self.tab_widget.currentWidget().setUrl(QUrl(url))
 
-        img {
-            image-rendering: pixelated !important;
-            filter: contrast(110%) brightness(110%);
-        }
-        """
+    def navigate_home(self):
+        self.tab_widget.currentWidget().setUrl(QUrl("https://www.google.com"))
 
-        js_code = f"""
-        (function() {{
-            var style = document.createElement('style');
-            style.type = 'text/css';
-            style.innerHTML = `{css}`;
-            document.head.appendChild(style);
-        }})();
-        """
+    def update_url_bar(self):
+        current_browser = self.tab_widget.currentWidget()
+        if isinstance(current_browser, QWebEngineView):
+            self.url_bar.setText(current_browser.url().toString())
 
-        # Apply the style to the provided browser instance
-        browser.page().runJavaScript(js_code, lambda _: print("8-bit style applied"))
+    def browser_back(self):
+        current_browser = self.tab_widget.currentWidget()
+        if isinstance(current_browser, QWebEngineView):
+            current_browser.back()
 
+    def browser_forward(self):
+        current_browser = self.tab_widget.currentWidget()
+        if isinstance(current_browser, QWebEngineView):
+            current_browser.forward()
 
-def main():
-    app = QApplication(sys.argv)
-    browser = Browser()
-    browser.show()
-    sys.exit(app.exec_())
+    def browser_refresh(self):
+        current_browser = self.tab_widget.currentWidget()
+        if isinstance(current_browser, QWebEngineView):
+            current_browser.reload()
+
+    def add_new_tab_button(self):
+        new_tab_btn = QPushButton("+")
+        new_tab_btn.setFixedSize(30, 30)
+        new_tab_btn.clicked.connect(lambda: self.add_new_tab())
+        self.tab_widget.setCornerWidget(new_tab_btn, Qt.TopRightCorner)
+
+    def add_bookmark(self):
+        current_browser = self.tab_widget.currentWidget()
+        if isinstance(current_browser, QWebEngineView):
+            url = current_browser.url().toString()
+
+            # Show input dialog to ask for a bookmark title
+            bookmark_title, ok = QInputDialog.getText(
+                self, "Add Bookmark", "Enter bookmark title:"
+            )
+
+            if ok and bookmark_title:  # If the user pressed OK and entered a title
+                bookmark_btn = QPushButton(bookmark_title)
+                bookmark_btn.setStyleSheet(
+                    """
+                    QPushButton {
+                        background-color: black;
+                        color: #0f0;
+                        border: 2px solid #0f0;
+                        font-family: "Press Start 2P";
+                    }
+                    QPushButton:hover {
+                        background-color: #111;
+                    }
+                    """
+                )
+                bookmark_btn.clicked.connect(
+                    lambda: self.tab_widget.currentWidget().setUrl(QUrl(url))
+                )
+
+                # Add the bookmark button to the bookmark bar
+                self.bookmark_bar_layout.addWidget(bookmark_btn)
+                self.bookmarks.append((bookmark_title, url))
+
+    def mouse_press_event(self, event):
+        self.old_position = event.globalPos()
+
+    def mouse_move_event(self, event):
+        delta = QPoint(event.globalPos() - self.old_position)
+        self.move(self.x() + delta.x(), self.y() + delta.y())
+        self.old_position = event.globalPos()
 
 
 if __name__ == "__main__":
-    main()
+    app = QApplication(sys.argv)
+    app.setApplicationName("OR-BIT Browser")
+    window = Browser()
+    window.show()
+    sys.exit(app.exec_())
