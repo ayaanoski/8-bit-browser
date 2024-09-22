@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import QUrl, QSize, Qt, QPoint
+from PyQt5.QtGui import QFontDatabase
 
 
 class Browser(QMainWindow):
@@ -391,6 +392,16 @@ class Browser(QMainWindow):
         delta = QPoint(event.globalPos() - self.old_position)
         self.move(self.x() + delta.x(), self.y() + delta.y())
         self.old_position = event.globalPos()
+
+    def load_custom_font(self):
+        # Load the font from the local file and add it to the QFontDatabase
+        font_id = QFontDatabase.addApplicationFont(
+            os.path.join(self.script_dir, "fonts", "PressStart2P.ttf")
+        )
+        if font_id == -1:
+            print("Failed to load font")
+        else:
+            print("Font successfully loaded")
 
 
 if __name__ == "__main__":
