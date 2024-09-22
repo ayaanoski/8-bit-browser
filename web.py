@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import (
     QDockWidget,
     QInputDialog,
     QTabWidget,
+    QMenu,
 )
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtGui import QIcon, QFont
@@ -359,9 +360,29 @@ class Browser(QMainWindow):
                     lambda: self.tab_widget.currentWidget().setUrl(QUrl(url))
                 )
 
+                # Context menu for deleting bookmarks
+                bookmark_btn.setContextMenuPolicy(Qt.CustomContextMenu)
+                bookmark_btn.customContextMenuRequested.connect(
+                    lambda pos, btn=bookmark_btn: self.show_bookmark_menu(pos, btn)
+                )
+
                 # Add the bookmark button to the bookmark bar
                 self.bookmark_bar_layout.addWidget(bookmark_btn)
-                self.bookmarks.append((bookmark_title, url))
+                self.bookmarks.append((bookmark_title, url, bookmark_btn))
+
+    def show_bookmark_menu(self, pos, bookmark_btn):
+        menu = QMenu(self)
+        delete_action = menu.addAction("Delete Bookmark")
+
+        action = menu.exec_(bookmark_btn.mapToGlobal(pos))
+
+        if action == delete_action:
+            # Remove the button from the layout
+            bookmark_btn.setParent(None)
+            bookmark_btn.deleteLater()
+
+            # Remove the bookmark from the list
+            self.bookmarks = [b for b in self.bookmarks if b[2] != bookmark_btn]
 
     def mouse_press_event(self, event):
         self.old_position = event.globalPos()
