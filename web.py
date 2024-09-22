@@ -259,7 +259,7 @@ class Browser(QMainWindow):
         self.tab_widget.setCurrentIndex(index)
 
     def close_tab(self, index):
-        if self.tab_widget.count() > 2:
+        if self.tab_widget.count() > 1:
             self.tab_widget.removeTab(index)
         else:
             self.close()
