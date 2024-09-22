@@ -323,8 +323,12 @@ class Browser(QMainWindow):
     def add_new_tab_button(self):
         new_tab_btn = QPushButton("+")
         new_tab_btn.setFixedSize(30, 30)
+        # Adjust the button's position by adding a top margin
+        new_tab_btn.setStyleSheet(
+            "margin-top: 5px; margin-bottom: 9px;"
+        )  # Negative top margin to move it up
         new_tab_btn.clicked.connect(lambda: self.add_new_tab())
-        self.tab_widget.setCornerWidget(new_tab_btn, Qt.TopRightCorner)
+        self.tab_widget.setCornerWidget(new_tab_btn, Qt.TopLeftCorner)
 
     def add_bookmark(self):
         current_browser = self.tab_widget.currentWidget()
@@ -341,8 +345,8 @@ class Browser(QMainWindow):
                 bookmark_btn.setStyleSheet(
                     """
                     QPushButton {
-                        background-color: black;
-                        color: #0f0;
+                        background-color: white;
+                        color: red;
                         border: 2px solid #0f0;
                         font-family: "Press Start 2P";
                     }
