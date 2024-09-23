@@ -1,4 +1,5 @@
 # 8-Bit Retro Browser
+## website : https://8-bit-browser.vercel.app/
 
 Welcome to the 8-Bit Retro Browser! This application is a fun and nostalgic web browser that incorporates a retro 8-bit aesthetic. Built using PyQt5, it allows users to navigate the web while enjoying a unique visual style reminiscent of classic video games.
 
