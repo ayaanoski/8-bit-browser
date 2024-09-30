@@ -93,6 +93,10 @@ class Browser(QMainWindow):
         title_layout.addWidget(minimize_btn)
         title_layout.addWidget(maximize_btn)
         title_layout.addWidget(close_btn)
+        mute_btn = QPushButton()
+        mute_btn.setIcon(
+            QIcon(os.path.join(self.script_dir, "images", "mute.png"))
+        )  # Set an appropriate mute icon
 
         # Drag functionality for the custom title bar
         self.old_position = None
@@ -155,6 +159,10 @@ class Browser(QMainWindow):
         )
         inspect_btn.setFixedSize(button_size)
         inspect_btn.clicked.connect(self.toggle_dev_tools)
+        mute_btn.setFixedSize(button_size)
+        mute_btn.setIcon(QIcon(os.path.join(self.script_dir, "images", "mute.png")))
+        mute_btn.setCheckable(True)  # Make it toggleable
+        mute_btn.clicked.connect(self.toggle_mute)
 
         logo_label = QLabel()
         logo_label.setPixmap(
@@ -185,7 +193,8 @@ class Browser(QMainWindow):
         nav_layout.addWidget(self.url_bar)
         nav_layout.addWidget(bookmark_btn)
         nav_layout.addWidget(inspect_btn)
-        nav_layout.addWidget(QLabel("Volume"))  # Add a label for the volume slider
+        nav_layout.addWidget(mute_btn)
+        nav_layout.addWidget(QLabel("vol."))  # Add a label for the volume slider
         nav_layout.addWidget(volume_slider)
         nav_layout.addWidget(logo_label)
 
@@ -309,18 +318,21 @@ class Browser(QMainWindow):
             self.close()
 
     def apply_8bit_style(self, browser):
-        # Inject 8-bit style CSS
+        css = """
+        * {
+            font-family: "Press Start 2P", cursive !important;
+        }
+        """
+        # Inject stylesheet in a secure way using QWebEnginePage.setUserStyleSheet
         browser.page().runJavaScript(
-            """
-            var css = `
-            * {
-                font-family: "Press Start 2P", cursive !important;
-            }
-            `;
-            var style = document.createElement('style');
-            style.innerHTML = css;
-            document.head.appendChild(style);
-            """
+            f"""
+            (function() {{
+                var style = document.createElement('style');
+                style.type = 'text/css';
+                style.innerHTML = `{css}`;
+                document.head.appendChild(style);
+            }})();
+        """
         )
 
     def toggle_dev_tools(self):
@@ -469,6 +481,12 @@ class Browser(QMainWindow):
             print("Failed to load font")
         else:
             print("Font successfully loaded")
+
+    def toggle_mute(self):
+        if self.music_player.isMuted():
+            self.music_player.setMuted(False)
+        else:
+            self.music_player.setMuted(True)
 
 
 if __name__ == "__main__":
