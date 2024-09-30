@@ -2,6 +2,16 @@
 # OR-BIT Browser
 
 OR-BIT Browser is a custom lightweight web browser built with PyQt5 and QWebEngineView. It features a frameless window with a custom title bar, multiple tab support, a bookmark system, and a built-in music player. The browser also supports developer tools for web development.
+## a glimpse 
+![Screenshot 2024-09-30 163414](https://github.com/user-attachments/assets/2ebdcec2-9798-4e7d-8572-4430cc11d3d8)
+
+![Screenshot 2024-09-30 163438](https://github.com/user-attachments/assets/672d385d-4260-45cf-bef1-3cb329b3a628)
+
+![Screenshot 2024-09-30 163503](https://github.com/user-attachments/assets/476dedc8-0155-4957-a429-af91fbadaae8)
+
+![Screenshot 2024-09-30 163720](https://github.com/user-attachments/assets/148224b1-c9be-47fd-89b2-83656a314d29)
+
+![Screenshot 2024-09-30 163857](https://github.com/user-attachments/assets/f494ed18-bf2a-4034-b804-0c3c58a499ff)
 
 ## Features
 
