@@ -318,18 +318,21 @@ class Browser(QMainWindow):
             self.close()
 
     def apply_8bit_style(self, browser):
-        # Inject 8-bit style CSS
+        css = """
+        * {
+            font-family: "Press Start 2P", cursive !important;
+        }
+        """
+        # Inject stylesheet in a secure way using QWebEnginePage.setUserStyleSheet
         browser.page().runJavaScript(
-            """
-            var css = `
-            * {
-                font-family: "Press Start 2P", cursive !important;
-            }
-            `;
-            var style = document.createElement('style');
-            style.innerHTML = css;
-            document.head.appendChild(style);
-            """
+            f"""
+            (function() {{
+                var style = document.createElement('style');
+                style.type = 'text/css';
+                style.innerHTML = `{css}`;
+                document.head.appendChild(style);
+            }})();
+        """
         )
 
     def toggle_dev_tools(self):
