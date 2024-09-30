@@ -1,78 +1,44 @@
-# 8-Bit Retro Browser
-## website : https://8-bit-browser.vercel.app/
+# OR-BIT Browser
 
-Welcome to the 8-Bit Retro Browser! This application is a fun and nostalgic web browser that incorporates a retro 8-bit aesthetic. Built using PyQt5, it allows users to navigate the web while enjoying a unique visual style reminiscent of classic video games.
-
-
-![Screenshot 2024-09-22 034621](https://github.com/user-attachments/assets/79f1f4eb-cfe8-4d7e-9e59-25ba7f2a5953)
-
-
-![Screenshot 2024-09-22 034809](https://github.com/user-attachments/assets/ee0a8387-66ca-460b-9c41-2dee1e73de1f)
-
-
-![Screenshot 2024-09-22 034653](https://github.com/user-attachments/assets/1df37bb0-ccef-4fbf-bb39-0b32af731dce)
-
-
-![Screenshot 2024-09-22 034726](https://github.com/user-attachments/assets/3075e888-b40e-49b1-b64b-ea7a78c4671f)
-
-
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Customization](#customization)
-- [License](#license)
-- [Contributing](#contributing)
+## Overview
+OR-BIT is a lightweight, 8-bit themed web browser built with PyQt5 and QtWebEngine. The browser features a custom user interface with a unique title bar, navigation buttons, and the ability to manage multiple tabs. It is designed to provide a fun and nostalgic browsing experience while offering essential features like bookmarks and volume control.
 
 ## Features
-
-- **Retro Aesthetic**: Enjoy a nostalgic 8-bit style with custom fonts and colors.
-- **Navigation Bar**: Easily navigate with back, forward, refresh, and home buttons.
-- **URL Entry**: Enter URLs directly or search via Google.
-- **Custom Logo**: The Google homepage features a pixelated logo for added retro flair.
-- **Dark Mode**: Enhanced visibility with a dark background and bright text.
+- **Custom Title Bar**: A sleek title bar with custom buttons for minimizing, maximizing, and closing the window.
+- **Multiple Tabs**: Users can open multiple tabs, with the option to close them as needed.
+- **Navigation Controls**: Back, forward, refresh, and home buttons for easy navigation.
+- **URL Bar**: An input field to enter URLs and navigate directly to websites.
+- **Bookmarks**: Users can add bookmarks with custom titles and manage them through a context menu.
+- **Volume Control**: A slider to control the background music volume.
+- **Developer Tools**: Access to developer tools via a dockable widget for debugging web pages.
+- **8-bit Theming**: Custom CSS applied to web pages for a unique 8-bit style.
+- **Background Music**: A looped background music feature to enhance the browsing experience.
 
 ## Installation
+To run the OR-BIT Browser, ensure you have Python installed along with the necessary packages. You can install the required dependencies using pip:
 
-To run the 8-Bit Retro Browser, you'll need to have Python and PyQt5 installed on your machine. Follow these steps:
-
-1. **Install Python**: Ensure you have Python 3.x installed. You can download it from [python.org](https://www.python.org/).
-2. **Install PyQt5**: Use pip to install the required packages:
-    ```bash
-    pip install PyQt5 PyQtWebEngine
-    ```
-3. **Download the Source Code**: Clone or download this repository to your local machine.
-4. **Add Icons**: Ensure you have the necessary icon images (logo, back, forward, refresh, home) in the specified paths or update the paths in the code accordingly.
+```bash
+pip install PyQt5 PyQtWebEngine
+```
 
 ## Usage
-
-1. **Run the Application**:
-    ```bash
-    python browser.py
-    ```
-   Replace `browser.py` with the name of your Python file if different.
-
-2. **Navigate the Web**:
-   - Use the URL bar to enter any web address or search term.
-   - Click on navigation buttons to go back, forward, refresh the page, or return to Google.
-
-3. **Experience the 8-Bit Style**:
-   - The browser automatically applies an 8-bit style to all loaded pages.
-   - The Google homepage will display a custom pixelated logo.
+1. **Run the Application**: Execute the `main.py` script to launch the browser.
+   ```bash
+   python main.py
+   ```
+2. **Navigating**: Use the URL bar to enter web addresses or click on the navigation buttons.
+3. **Managing Tabs**: Click on the "+" button to open a new tab. Close tabs by clicking the "X" on the tab.
+4. **Adding Bookmarks**: While on a desired page, click the bookmark button to save the page with a custom title.
+5. **Accessing Developer Tools**: Use the inspect button to toggle the developer tools dock.
 
 ## Customization
-
-You can customize various aspects of the browser:
-
-- **Icons**: Update the paths for icons in the code to use your own images.
-- **Styling**: Modify the CSS within the `apply_8bit_style` method to change colors or styles as desired.
-- **Fonts**: Change the font by updating the `font-family` property in the stylesheet.
+- To customize the look of the browser, you can modify the CSS and UI elements within the code.
+- You can change the background music by replacing the `sdp.mp3` file in the `bgm` directory.
 
 ## License
+This project is open-source and available for anyone to use and modify. Feel free to contribute!
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Acknowledgments
+- The 8-bit style is inspired by retro gaming aesthetics.
+- Special thanks to the PyQt5 and QtWebEngine documentation for guidance on building this application.
 
-## Contributing
-
-Contributions are welcome! If you have suggestions or improvements, feel free to fork this repository and submit a pull request. Enjoy browsing with a touch of nostalgia! If you encounter any issues or have questions, please feel free to reach out. Happy surfing!
