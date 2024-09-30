@@ -19,6 +19,12 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import QUrl, QSize, Qt, QPoint
 from PyQt5.QtGui import QFontDatabase
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtCore import QUrl
+from PyQt5.QtWidgets import QSlider
+from PyQt5.QtMultimedia import QMediaPlaylist
+from PyQt5.QtWebEngineWidgets import QWebEngineSettings
+from PyQt5.QtWebEngineWidgets import QWebEngineProfile
 
 
 class Browser(QMainWindow):
@@ -30,6 +36,7 @@ class Browser(QMainWindow):
 
         # Remove default window decorations (including title bar)
         self.setWindowFlags(Qt.FramelessWindowHint)
+        self.set_web_engine_settings()
 
         # Set up the main window properties
         self.setWindowTitle("OR-BIT")
@@ -160,6 +167,12 @@ class Browser(QMainWindow):
         bookmark_bar_widget = QWidget()
         bookmark_bar_widget.setLayout(self.bookmark_bar_layout)
         bookmark_bar_widget.setFixedHeight(30)  # Very thin bookmark bar
+        # Volume control slider
+        volume_slider = QSlider(Qt.Horizontal)
+        volume_slider.setRange(0, 100)  # Range from 0 to 100 (volume percentage)
+        volume_slider.setValue(50)  # Default value (50% volume)
+        volume_slider.setFixedWidth(100)
+        volume_slider.valueChanged.connect(self.set_volume)
 
         nav_layout = QHBoxLayout()
         nav_layout.setContentsMargins(5, 5, 5, 5)
@@ -172,6 +185,8 @@ class Browser(QMainWindow):
         nav_layout.addWidget(self.url_bar)
         nav_layout.addWidget(bookmark_btn)
         nav_layout.addWidget(inspect_btn)
+        nav_layout.addWidget(QLabel("Volume"))  # Add a label for the volume slider
+        nav_layout.addWidget(volume_slider)
         nav_layout.addWidget(logo_label)
 
         nav_widget = QWidget()
@@ -181,6 +196,7 @@ class Browser(QMainWindow):
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(self.title_bar)
+
         main_layout.addWidget(nav_widget)
         main_layout.addWidget(bookmark_bar_widget)
         main_layout.addWidget(self.tab_widget)
@@ -188,7 +204,8 @@ class Browser(QMainWindow):
         widget = QWidget()
         widget.setLayout(main_layout)
         self.setCentralWidget(widget)
-
+        self.music_player = QMediaPlayer()
+        self.load_background_music()
         self.bookmarks = []
 
         self.setStyleSheet(
@@ -236,6 +253,31 @@ class Browser(QMainWindow):
 
         # Open the initial tab with the home page
         self.add_new_tab(QUrl("https://www.google.com"), "Home")
+
+    def set_web_engine_settings(self):
+        profile = QWebEngineProfile.defaultProfile()
+        profile.setRequestInterceptor(None)
+
+        # Disable GPU acceleration
+        profile.setPersistentStoragePath(os.path.join(self.script_dir, "webengine"))
+        profile.setCachePath(os.path.join(self.script_dir, "webengine_cache"))
+        profile.setPersistentStoragePath(
+            os.path.join(self.script_dir, "webengine_persistent")
+        )
+
+        # Set other WebEngine settings
+        QWebEngineSettings.globalSettings().setAttribute(
+            QWebEngineSettings.AutoLoadImages, True
+        )
+        QWebEngineSettings.globalSettings().setAttribute(
+            QWebEngineSettings.JavascriptEnabled, True
+        )
+        QWebEngineSettings.globalSettings().setAttribute(
+            QWebEngineSettings.LocalStorageEnabled, True
+        )
+        QWebEngineSettings.globalSettings().setAttribute(
+            QWebEngineSettings.WebRTCPublicInterfacesOnly, False
+        )
 
     def add_new_tab(self, qurl=None, label="New Tab"):
         if qurl is None:
@@ -337,39 +379,64 @@ class Browser(QMainWindow):
         if isinstance(current_browser, QWebEngineView):
             url = current_browser.url().toString()
 
-            # Show input dialog to ask for a bookmark title
-            bookmark_title, ok = QInputDialog.getText(
-                self, "Add Bookmark", "Enter bookmark title:"
-            )
+            # Create a custom input dialog for bookmark title
+            dialog = QInputDialog(self)
+            dialog.setWindowFlags(
+                Qt.FramelessWindowHint | Qt.Popup
+            )  # Remove title bar, make it popup
+            dialog.setInputMode(QInputDialog.TextInput)
+            dialog.setLabelText("Enter bookmark title:")
+            dialog.setCancelButtonText("Cancel")
+            dialog.resize(300, 150)  # Optional: Resize the dialog if needed
 
-            if ok and bookmark_title:  # If the user pressed OK and entered a title
-                bookmark_btn = QPushButton(bookmark_title)
-                bookmark_btn.setStyleSheet(
-                    """
-                    QPushButton {
-                        background-color: white;
-                        color: red;
-                        border: 2px solid #0f0;
-                        font-family: "Press Start 2P";
-                    }
-                    QPushButton:hover {
-                        background-color: #111;
-                    }
-                    """
-                )
-                bookmark_btn.clicked.connect(
-                    lambda: self.tab_widget.currentWidget().setUrl(QUrl(url))
-                )
+            # Show the dialog and wait for the user input
+            if dialog.exec_() == QInputDialog.Accepted:
+                bookmark_title = dialog.textValue()
+                if bookmark_title:  # If the user entered a title
+                    bookmark_btn = QPushButton(bookmark_title)
+                    bookmark_btn.setStyleSheet(
+                        """
+                        QPushButton {
+                            background-color: white;
+                            color: red;
+                            border: 2px solid #0f0;
+                            font-family: "Press Start 2P";
+                        }
+                        QPushButton:hover {
+                            background-color: #111;
+                        }
+                        """
+                    )
+                    bookmark_btn.clicked.connect(
+                        lambda: self.tab_widget.currentWidget().setUrl(QUrl(url))
+                    )
 
-                # Context menu for deleting bookmarks
-                bookmark_btn.setContextMenuPolicy(Qt.CustomContextMenu)
-                bookmark_btn.customContextMenuRequested.connect(
-                    lambda pos, btn=bookmark_btn: self.show_bookmark_menu(pos, btn)
-                )
+                    # Context menu for deleting bookmarks
+                    bookmark_btn.setContextMenuPolicy(Qt.CustomContextMenu)
+                    bookmark_btn.customContextMenuRequested.connect(
+                        lambda pos, btn=bookmark_btn: self.show_bookmark_menu(pos, btn)
+                    )
 
-                # Add the bookmark button to the bookmark bar
-                self.bookmark_bar_layout.addWidget(bookmark_btn)
-                self.bookmarks.append((bookmark_title, url, bookmark_btn))
+                    # Add the bookmark button to the bookmark bar
+                    self.bookmark_bar_layout.addWidget(bookmark_btn)
+                    self.bookmarks.append((bookmark_title, url, bookmark_btn))
+
+    def load_background_music(self):
+        # Path to the music file
+        playlist = QMediaPlaylist()
+        music_path = os.path.join(self.script_dir, "bgm", "sdp.mp3")
+        url = QUrl.fromLocalFile(music_path)
+        content = QMediaContent(url)
+        playlist.addMedia(QMediaContent(url))
+        playlist.setPlaybackMode(QMediaPlaylist.Loop)
+
+        # Assign the playlist to the media player
+        self.music_player.setPlaylist(playlist)
+        self.music_player.setMedia(content)
+        self.music_player.play()
+
+    def set_volume(self, value):
+        self.music_player.setVolume(value)
 
     def show_bookmark_menu(self, pos, bookmark_btn):
         menu = QMenu(self)
