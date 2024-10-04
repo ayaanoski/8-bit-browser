@@ -30,6 +30,8 @@ https://github.com/user-attachments/assets/6b1f9a65-9340-472e-adcd-342165cb44f0
 
 ## How to Use
 
+Firstly , install a font named press start 2P, link : https://dl.dafont.com/dl/?f=press_start_2p
+
 1. **Running the Browser**: 
    To start the browser, simply run the Python script:
    ```bash
