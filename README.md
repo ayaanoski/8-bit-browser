@@ -91,6 +91,8 @@ OR-BIT/
 - **Customizable Home Page**: Allow users to set a custom home page.
 - **Enhanced Bookmark Management**: Provide more options for organizing and managing bookmarks.
 - **Integrated Search Engine**: Add a search bar with a configurable search engine (e.g., Google, DuckDuckGo).
+- **Web3 Wallet Integration**: Incorporate a built-in Web3 wallet for seamless interaction with blockchain-based applications and decentralized websites.
+- **Extensions Support**: Develop support for additional browser extensions to enhance functionality.
 
 ## License
 
